@@ -9,7 +9,7 @@ export default function AuthPage() {
     return (
         <div className='flex min-h-screen bg-white'>
             {/* left column */}
-            <div className='flex w-full  flex-col justify-center bg-white lg:w[w-[45%] lg:px-24 text-[#4A3319]'>
+            <div className='flex w-full  flex-col justify-center bg-white lg:w-[45%] lg:px-24 text-[#4A3319]'>
                 <div className='mx-auto w-full max-w-md'>
                     <h2 className='text-3xl font-semibold tracking-tight'>
                         {isLogin ? 'Sign In' : 'Create Account'}
