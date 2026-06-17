@@ -1,6 +1,8 @@
 'use client';
 
 import { useState } from 'react';
+import AnimatedShapes from '@/components/AnimatedShapes';
+
 
 export default function AuthPage() {
     const [isLogin, setIsLogin] = useState(true);
@@ -55,7 +57,7 @@ export default function AuthPage() {
         }
 
     return (
-        <div className='flex min-h-screen bg-white'>
+        <div className='flex h-screen w-screen overflow-hidden bg-white'>
             {/* left column */}
             <div className='flex w-full  flex-col justify-center bg-white lg:w-[45%] lg:px-24 text-[#4A3319]'>
                 <div className='mx-auto w-full max-w-md'>
@@ -154,8 +156,10 @@ export default function AuthPage() {
             </div>
 
             {/* right column */}
-            <div className='w-[55%] lg:block bg-[#edd2a5] flex items-center justify-center text-[#7A6B58]'>
-                <p> place holder </p>
+            <div className='hidden lg:block lg:w-[55%] h-full bg-[#edd2a5] relative overflow-hidden'>
+                <div className='absolute inset-0 w-full h-full'>
+                    <AnimatedShapes />
+                </div>
             </div>
 
         </div>
