@@ -1,5 +1,6 @@
 'use client';
 
+import DraggableMesh from './DraggableMesh';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
 import * as THREE from 'three';
@@ -14,6 +15,7 @@ interface SpawnedObject {
 interface AnimatedShapesProps {
   isAuthenticated: boolean;
   spawnedObjects: SpawnedObject[];
+  onUpdatePosition: (id: string, newPos: [number, number, number]) => void;
 }
 
 function BackgroundShowcase() {
@@ -68,39 +70,31 @@ function BackgroundShowcase() {
   );
 }
 
-function WorkspaceObjects({ list }: { list: SpawnedObject[] }) {
+function WorkspaceObjects({ 
+  list, 
+  onUpdatePosition 
+}: { 
+  list: SpawnedObject[]; 
+  onUpdatePosition: (id: string, newPos: [number, number, number]) => void; 
+}) {
   return (
     <>
-      {list.map((obj) => {
-        if (obj.type === 'cube') {
-          return (
-            <mesh key={obj.id} position={obj.position}>
-              <boxGeometry args={[1, 1, 1]} />
-              <meshStandardMaterial wireframe color="#7A6B58" />
-            </mesh>
-          );
-        }
-        if (obj.type === 'sphere') {
-          return (
-            <mesh key={obj.id} position={obj.position}>
-              <sphereGeometry args={[0.6, 32, 32]} />
-              <meshStandardMaterial wireframe color="#D9A066" />
-            </mesh>
-          );
-        }
-        // torus
-        return (
-          <mesh key={obj.id} position={obj.position}>
-            <torusKnotGeometry args={[0.4, 0.12, 120, 16]} />
-            <meshStandardMaterial wireframe color="#e8c195" />
-          </mesh>
-        );
-      })}
+      {list.map((obj) => (
+        <DraggableMesh
+          key={obj.id}
+          objectData={obj}
+          onUpdatePosition={onUpdatePosition}
+        />
+      ))}
     </>
   );
 }
 
-export default function AnimatedShapes({ isAuthenticated, spawnedObjects }: AnimatedShapesProps) {
+export default function AnimatedShapes({ 
+  isAuthenticated, 
+  spawnedObjects, 
+  onUpdatePosition 
+}: AnimatedShapesProps) {
   return (
     <div className="w-full h-full relative cursor-grab active:cursor-grabbing">
       <Canvas camera={{ position: [0, 0, 7], fov: 50 }}>
@@ -112,7 +106,7 @@ export default function AnimatedShapes({ isAuthenticated, spawnedObjects }: Anim
 
         {isAuthenticated && (
           <>
-            <WorkspaceObjects list={spawnedObjects} />
+            <WorkspaceObjects list={spawnedObjects} onUpdatePosition={onUpdatePosition} />
             <Grid
               position={[0, -2.5, 0]}
               args={[10, 10]}
