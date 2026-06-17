@@ -8,6 +8,7 @@ interface SpawnedObject {
     id: string;
     type: 'cube' | 'sphere' | 'custom';
     position: [number, number, number];
+    scale?: number;
 }
 
 
@@ -241,7 +242,18 @@ export default function AuthPage() {
                         key={isAuthenticated ? 'dashboard-view' : 'login-view'}
                         isAuthenticated={isAuthenticated} 
                         spawnedObjects={objects} 
-                        onUpdatePosition={handleUpdatePosition}
+                        onUpdatePosition={(id, newPos) => {
+                            setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, position: newPos } : obj));
+                        }}
+                        onUpdateType={(id, newType) => {
+                            setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, type: newType } : obj));
+                        }}
+                        onUpdateScale={(id, newScale) => {
+                            setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, scale: newScale } : obj));
+                        }}
+                        onDelete={(id) => {
+                            setObjects(prev => prev.filter(obj => obj.id !== id));
+                        }}
                     />
                 </div>
             </div>

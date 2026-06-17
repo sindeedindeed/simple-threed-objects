@@ -10,12 +10,16 @@ interface SpawnedObject {
   id: string;
   type: 'cube' | 'sphere' | 'custom';
   position: [number, number, number];
+  scale?: number;
 }
 
 interface AnimatedShapesProps {
   isAuthenticated: boolean;
   spawnedObjects: SpawnedObject[];
   onUpdatePosition: (id: string, newPos: [number, number, number]) => void;
+  onUpdateType: (id: string, newType: 'cube' | 'sphere' | 'custom') => void;
+  onUpdateScale: (id: string, newScale: number) => void;
+  onDelete: (id: string) => void;
 }
 
 function BackgroundShowcase() {
@@ -27,7 +31,6 @@ function BackgroundShowcase() {
     timeRef.current += delta;
     const elapsedTime = timeRef.current;
 
-    // spinning bg elements
     if (cubeRef.current) {
       cubeRef.current.rotation.x = elapsedTime * 0.2;
       cubeRef.current.rotation.y = elapsedTime * 0.3;
@@ -72,10 +75,16 @@ function BackgroundShowcase() {
 
 function WorkspaceObjects({ 
   list, 
-  onUpdatePosition 
+  onUpdatePosition,
+  onUpdateType,
+  onUpdateScale,
+  onDelete
 }: { 
   list: SpawnedObject[]; 
   onUpdatePosition: (id: string, newPos: [number, number, number]) => void; 
+  onUpdateType: (id: string, newType: 'cube' | 'sphere' | 'custom') => void;
+  onUpdateScale: (id: string, newScale: number) => void;
+  onDelete: (id: string) => void;
 }) {
   return (
     <>
@@ -84,6 +93,9 @@ function WorkspaceObjects({
           key={obj.id}
           objectData={obj}
           onUpdatePosition={onUpdatePosition}
+          onUpdateType={onUpdateType}
+          onUpdateScale={onUpdateScale}
+          onDelete={onDelete}
         />
       ))}
     </>
@@ -93,7 +105,10 @@ function WorkspaceObjects({
 export default function AnimatedShapes({ 
   isAuthenticated, 
   spawnedObjects, 
-  onUpdatePosition 
+  onUpdatePosition,
+  onUpdateType,
+  onUpdateScale,
+  onDelete
 }: AnimatedShapesProps) {
   return (
     <div className="w-full h-full relative cursor-grab active:cursor-grabbing">
@@ -106,7 +121,13 @@ export default function AnimatedShapes({
 
         {isAuthenticated && (
           <>
-            <WorkspaceObjects list={spawnedObjects} onUpdatePosition={onUpdatePosition} />
+            <WorkspaceObjects 
+              list={spawnedObjects} 
+              onUpdatePosition={onUpdatePosition} 
+              onUpdateType={onUpdateType}
+              onUpdateScale={onUpdateScale}
+              onDelete={onDelete}
+            />
             <Grid
               position={[0, -2.5, 0]}
               args={[10, 10]}
