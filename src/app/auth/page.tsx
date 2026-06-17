@@ -3,6 +3,12 @@
 import { useState } from 'react';
 import AnimatedShapes from '@/components/AnimatedShapes';
 
+interface SpawnedObject {
+    id: string;
+    type: 'cube' | 'sphere' | 'custom';
+    position: [number, number, number];
+}
+
 
 export default function AuthPage() {
     const [isLogin, setIsLogin] = useState(true);
@@ -11,6 +17,9 @@ export default function AuthPage() {
     const [error, setError] = useState('');
     const [loading, setLoading] = useState('');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
+    const [objects, setObjects] = useState<SpawnedObject[]>([]);
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedType, setSelectedType] = useState<'cube' | 'sphere' | 'custom'>('cube');
 
     const handleAuthSubmit = async (e: React.SyntheticEvent) => {
         e.preventDefault();
@@ -65,6 +74,22 @@ export default function AuthPage() {
             setIsAuthenticated(false);
             setUsername('');
             setPassword('');
+            setObjects([]);
+        };
+
+        const handleAddObject = () => {
+            const randomX = (Math.random() - 0.5) * 6;
+            const randomY = (Math.random() - 0.5) * 4;
+            const randomZ = (Math.random() - 0.5) * 2;
+
+            const newObject: SpawnedObject = {
+                id: `obj-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
+                type: selectedType,
+                position: [randomX, randomY, randomZ]
+            };
+
+            setObjects([...objects, newObject]);
+            setIsModalOpen(false);
         };
 
     return (
@@ -169,13 +194,37 @@ export default function AuthPage() {
                         </form>
                     </div>
                 ) : (
-                    <div className='flex flex-col items-center space-y-2 mt-4 transition-all duration-300'>
-                        <div className='h-10 w-10 rounded-full bg-[#D9A066] flex items-center justify-center text-white font-bold text-sm shadow-sm uppercase'>
-                            {username.slice(0, 2)}
+                    <div className='flex flex-col items-center space-y-6 w-full mt-4 transition-all duration-300'>
+                        <div className='flex flex-col items-center space-y-2'>
+                            <div className='h-10 w-10 rounded-full bg-[#D9A066] flex items-center justify-center text-white font-bold text-sm shadow-sm uppercase'>
+                                {username.slice(0, 2)}
+                            </div>
+                            <span className='text-xs font-semibold tracking-tight text-[#7A6B58] max-w-[70px] truncate text-center'>
+                                {username}
+                            </span>
                         </div>
-                        <span className='text-xs font-semibold tracking-tight text-[#7A6B58] max-w-[70px] truncate text-center'>
-                            {username}
-                        </span>
+
+                        <div className='flex flex-col items-center space-y-4 w-full border-t border-[#e8c195]/20 pt-4'>
+                            <button
+                                onClick={() => setIsModalOpen(true)}
+                                className='w-12 h-12 rounded-xl bg-[#D9A066] hover:bg-[#c48e57] text-white flex items-center justify-center transition-all shadow-sm group active:scale-95'
+                                title='Add Objects'
+                            >
+                                <svg xmlns='http://www.w3.org/2000/xl' fill='none' viewBox='0 0 24 24' strokeWidth={2} stroke='currentColor' className='w-5 h-5 group-hover:rotate-90 transition-transform duration-200'>
+                                    <path strokeLinecap='round' strokeLinejoin='round' d='M12 4.5v15m7.5-7.5h-15' />
+                                </svg>
+                            </button>
+
+                            <button
+                                onClick={() => {}}
+                                className='w-12 h-12 rounded-xl bg-[#7A6B58] hover:bg-[#635645] text-white flex items-center justify-center transition-all shadow-sm active:scale-95'
+                                title='Save Layout'
+                            >
+                                <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth={2} stroke='currentColor' className='w-5 h-5'>
+                                    <path strokeLinecap='round' strokeLinejoin='round' d='M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z' />
+                                </svg>
+                            </button>
+                        </div>
                     </div>
                 )}
 
@@ -205,9 +254,83 @@ export default function AuthPage() {
                 ${isAuthenticated ? 'w-[calc(100vw-80px)]' : 'hidden lg:block lg:w-[55%]'}`}
             >
                 <div className='absolute inset-0 w-full h-full'>
-                    <AnimatedShapes />
+                    <AnimatedShapes 
+                        key={isAuthenticated ? 'dashboard-view' : 'login-view'}
+                        isAuthenticated={isAuthenticated} 
+                        spawnedObjects={objects} 
+                    />
                 </div>
             </div>
+
+            {isModalOpen && (
+                <div className='absolute inset-0 bg-black/30 backdrop-blur-md flex items-center justify-center z-50 transition-all duration-300'>
+                    <div className='bg-white rounded-2xl p-6 w-full max-w-sm shadow-2xl border border-[#e8c195]/20 text-[#4A3319] transform scale-100 transition-transform'>
+                        <h3 className='text-lg font-bold mb-5 tracking-tight text-stone-800'>Add an Object</h3>
+                        
+                        <div className='space-y-2.5 mb-6'>
+                            <button 
+                                type='button'
+                                onClick={() => setSelectedType('cube')}
+                                className={`w-full flex items-center justify-between p-3.5 rounded-xl border-2 transition-all duration-200 text-left group
+                                    ${selectedType === 'cube' 
+                                        ? 'border-[#D9A066] bg-[#D9A066]/5 font-medium shadow-sm' 
+                                        : 'border-stone-100 bg-stone-50/50 hover:bg-stone-50 hover:border-stone-200'}`}
+                            >
+                                <span className={selectedType === 'cube' ? 'text-[#4A3319]' : 'text-stone-600'}>Cube</span>
+                                <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all
+                                    ${selectedType === 'cube' ? 'border-[#D9A066] bg-[#D9A066]' : 'border-stone-300'}`}>
+                                    {selectedType === 'cube' && <div className='w-1.5 h-1.5 rounded-full bg-white' />}
+                                </div>
+                            </button>
+
+                            <button 
+                                type='button'
+                                onClick={() => setSelectedType('sphere')}
+                                className={`w-full flex items-center justify-between p-3.5 rounded-xl border-2 transition-all duration-200 text-left group
+                                    ${selectedType === 'sphere' 
+                                        ? 'border-[#D9A066] bg-[#D9A066]/5 font-medium shadow-sm' 
+                                        : 'border-stone-100 bg-stone-50/50 hover:bg-stone-50 hover:border-stone-200'}`}
+                            >
+                                <span className={selectedType === 'sphere' ? 'text-[#4A3319]' : 'text-stone-600'}>Sphere</span>
+                                <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all
+                                    ${selectedType === 'sphere' ? 'border-[#D9A066] bg-[#D9A066]' : 'border-stone-300'}`}>
+                                    {selectedType === 'sphere' && <div className='w-1.5 h-1.5 rounded-full bg-white' />}
+                                </div>
+                            </button>
+
+                            <button 
+                                type='button'
+                                onClick={() => setSelectedType('custom')}
+                                className={`w-full flex items-center justify-between p-3.5 rounded-xl border-2 transition-all duration-200 text-left group
+                                    ${selectedType === 'custom' 
+                                        ? 'border-[#D9A066] bg-[#D9A066]/5 font-medium shadow-sm' 
+                                        : 'border-stone-100 bg-stone-50/50 hover:bg-stone-50 hover:border-stone-200'}`}
+                            >
+                                <span className={selectedType === 'custom' ? 'text-[#4A3319]' : 'text-stone-600'}>Torus Knot</span>
+                                <div className={`w-4 h-4 rounded-full border-2 flex items-center justify-center transition-all
+                                    ${selectedType === 'custom' ? 'border-[#D9A066] bg-[#D9A066]' : 'border-stone-300'}`}>
+                                    {selectedType === 'custom' && <div className='w-1.5 h-1.5 rounded-full bg-white' />}
+                                </div>
+                            </button>
+                        </div>
+
+                        <div className='flex items-center justify-end space-x-3 pt-2 border-t border-stone-100'>
+                            <button 
+                                onClick={() => setIsModalOpen(false)}
+                                className='px-4 py-2.5 text-sm font-semibold text-stone-500 hover:text-stone-800 transition-colors'
+                            >
+                                Cancel
+                            </button>
+                            <button 
+                                onClick={handleAddObject}
+                                className='px-5 py-2.5 bg-[#D9A066] hover:bg-[#c48e57] text-white text-sm font-semibold rounded-xl transition-colors shadow-sm active:scale-95'
+                            >
+                                Add to Scene
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
 
         </div>
     );
