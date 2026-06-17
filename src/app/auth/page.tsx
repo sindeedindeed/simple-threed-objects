@@ -34,7 +34,8 @@ export default function AuthPage() {
                     const data = await response.json();
 
                     if (!response.ok) {
-                        setError(data.message || 'Something went wrong');
+                        // Read the specific error text returned by your catch block
+                        setError(data.error ? `${data.message}: ${data.error}` : (data.message || 'Something went wrong'));
                         setLoading('');
                         return;
                     }
@@ -48,7 +49,7 @@ export default function AuthPage() {
                         setIsLogin(true);
                     }
                 } catch (err) {
-                    setError('Failed to connect to the authentication server');
+                    setError(err instanceof Error ? err.message : 'Failed to connect to the authentication server');
                     setLoading('');
                 }
         }
