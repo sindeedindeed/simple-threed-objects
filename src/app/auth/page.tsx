@@ -2,11 +2,15 @@
 
 import { useState } from 'react';
 import AnimatedShapes from '@/components/AnimatedShapes';
+import SidebarManager from '@/components/SidebarManager';
 
 interface SpawnedObject {
     id: string;
     type: 'cube' | 'sphere' | 'custom';
     position: [number, number, number];
+    scale?: number;
+    color?: string;
+    wireframe?: boolean;
 }
 
 
@@ -18,6 +22,7 @@ export default function AuthPage() {
     const [loading, setLoading] = useState('');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [objects, setObjects] = useState<SpawnedObject[]>([]);
+    const [selectedObjectId, setSelectedObjectId] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedType, setSelectedType] = useState<'cube' | 'sphere' | 'custom'>('cube');
 
@@ -89,11 +94,18 @@ export default function AuthPage() {
             const newObject: SpawnedObject = {
                 id: `obj-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                 type: selectedType,
-                position: [randomX, randomY, randomZ]
+                position: [randomX, randomY, randomZ],
+                scale: 1,
+                color: '#D9A066',
+                wireframe: true
             };
 
             setObjects([...objects, newObject]);
             setIsModalOpen(false);
+        };
+
+        const handleUpdatePosition = (id: string, newPos: [number, number, number]) => {
+            setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, position: newPos } : obj));
         };
 
     return (
@@ -198,38 +210,13 @@ export default function AuthPage() {
                         </form>
                     </div>
                 ) : (
-                    <div className='flex flex-col items-center space-y-6 w-full mt-4 transition-all duration-300'>
-                        <div className='flex flex-col items-center space-y-2'>
-                            <div className='h-10 w-10 rounded-full bg-[#D9A066] flex items-center justify-center text-white font-bold text-sm shadow-sm uppercase'>
-                                {username.slice(0, 2)}
-                            </div>
-                            <span className='text-xs font-semibold tracking-tight text-[#7A6B58] max-w-[70px] truncate text-center'>
-                                {username}
-                            </span>
-                        </div>
 
-                        <div className='flex flex-col items-center space-y-4 w-full border-t border-[#e8c195]/20 pt-4'>
-                            <button
-                                onClick={() => setIsModalOpen(true)}
-                                className='w-12 h-12 rounded-xl bg-[#D9A066] hover:bg-[#c48e57] text-white flex items-center justify-center transition-all shadow-sm group active:scale-95'
-                                title='Add Objects'
-                            >
-                                <svg xmlns='http://www.w3.org/2000/xl' fill='none' viewBox='0 0 24 24' strokeWidth={2} stroke='currentColor' className='w-5 h-5 group-hover:rotate-90 transition-transform duration-200'>
-                                    <path strokeLinecap='round' strokeLinejoin='round' d='M12 4.5v15m7.5-7.5h-15' />
-                                </svg>
-                            </button>
-
-                            <button
-                                onClick={() => {}}
-                                className='w-12 h-12 rounded-xl bg-[#7A6B58] hover:bg-[#635645] text-white flex items-center justify-center transition-all shadow-sm active:scale-95'
-                                title='Save Layout'
-                            >
-                                <svg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' strokeWidth={2} stroke='currentColor' className='w-5 h-5'>
-                                    <path strokeLinecap='round' strokeLinejoin='round' d='M17.593 3.322c1.1.128 1.907 1.077 1.907 2.185V21L12 17.25 4.5 21V5.507c0-1.108.806-2.057 1.907-2.185a48.507 48.507 0 0111.186 0z' />
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
+                <SidebarManager 
+                        objects={objects}
+                        selectedObjectId={selectedObjectId}
+                        setSelectedObjectId={setSelectedObjectId}
+                        onAddClick={() => setIsModalOpen(true)}
+                    />
                 )}
 
                 {isAuthenticated && (
@@ -262,6 +249,27 @@ export default function AuthPage() {
                         key={isAuthenticated ? 'dashboard-view' : 'login-view'}
                         isAuthenticated={isAuthenticated} 
                         spawnedObjects={objects} 
+                        selectedObjectId={selectedObjectId}
+                        setSelectedObjectId={setSelectedObjectId}
+                        onUpdatePosition={(id, newPos) => {
+                            setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, position: newPos } : obj));
+                        }}
+                        onUpdateType={(id, newType) => {
+                            setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, type: newType } : obj));
+                        }}
+                        onUpdateScale={(id, newScale) => {
+                            setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, scale: newScale } : obj));
+                        }}
+                        onUpdateColor={(id, newColor) => {
+                            setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, color: newColor } : obj));
+                        }}
+                        onUpdateWireframe={(id, isWireframe) => {
+                            setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, wireframe: isWireframe } : obj));
+                        }}
+                        onDelete={(id) => {
+                            setObjects(prev => prev.filter(obj => obj.id !== id));
+                            if (selectedObjectId === id) setSelectedObjectId(null);
+                        }}
                     />
                 </div>
             </div>

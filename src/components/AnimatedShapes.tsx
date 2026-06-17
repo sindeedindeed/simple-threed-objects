@@ -1,5 +1,6 @@
 'use client';
 
+import DraggableMesh from './DraggableMesh';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { useRef } from 'react';
 import * as THREE from 'three';
@@ -9,11 +10,22 @@ interface SpawnedObject {
   id: string;
   type: 'cube' | 'sphere' | 'custom';
   position: [number, number, number];
+  scale?: number;
+  color?: string;
+  wireframe?: boolean;
 }
 
 interface AnimatedShapesProps {
   isAuthenticated: boolean;
   spawnedObjects: SpawnedObject[];
+  selectedObjectId: string | null;
+  setSelectedObjectId: React.Dispatch<React.SetStateAction<string | null>>;
+  onUpdatePosition: (id: string, newPos: [number, number, number]) => void;
+  onUpdateType: (id: string, newType: 'cube' | 'sphere' | 'custom') => void;
+  onUpdateScale: (id: string, newScale: number) => void;
+  onUpdateColor: (id: string, newColor: string) => void;
+  onUpdateWireframe: (id: string, isWireframe: boolean) => void;
+  onDelete: (id: string) => void;
 }
 
 function BackgroundShowcase() {
@@ -25,7 +37,6 @@ function BackgroundShowcase() {
     timeRef.current += delta;
     const elapsedTime = timeRef.current;
 
-    // spinning bg elements
     if (cubeRef.current) {
       cubeRef.current.rotation.x = elapsedTime * 0.2;
       cubeRef.current.rotation.y = elapsedTime * 0.3;
@@ -68,42 +79,66 @@ function BackgroundShowcase() {
   );
 }
 
-function WorkspaceObjects({ list }: { list: SpawnedObject[] }) {
+function WorkspaceObjects({ 
+  list, 
+  selectedObjectId,
+  setSelectedObjectId,
+  onUpdatePosition,
+  onUpdateType,
+  onUpdateScale,
+  onUpdateColor,
+  onUpdateWireframe,
+  onDelete
+}: { 
+  list: SpawnedObject[]; 
+  selectedObjectId: string | null;
+  setSelectedObjectId: React.Dispatch<React.SetStateAction<string | null>>;
+  onUpdatePosition: (id: string, newPos: [number, number, number]) => void; 
+  onUpdateType: (id: string, newType: 'cube' | 'sphere' | 'custom') => void;
+  onUpdateScale: (id: string, newScale: number) => void;
+  onUpdateColor: (id: string, newColor: string) => void;
+  onUpdateWireframe: (id: string, isWireframe: boolean) => void;
+  onDelete: (id: string) => void;
+}) {
   return (
     <>
-      {list.map((obj) => {
-        if (obj.type === 'cube') {
-          return (
-            <mesh key={obj.id} position={obj.position}>
-              <boxGeometry args={[1, 1, 1]} />
-              <meshStandardMaterial wireframe color="#7A6B58" />
-            </mesh>
-          );
-        }
-        if (obj.type === 'sphere') {
-          return (
-            <mesh key={obj.id} position={obj.position}>
-              <sphereGeometry args={[0.6, 32, 32]} />
-              <meshStandardMaterial wireframe color="#D9A066" />
-            </mesh>
-          );
-        }
-        // torus
-        return (
-          <mesh key={obj.id} position={obj.position}>
-            <torusKnotGeometry args={[0.4, 0.12, 120, 16]} />
-            <meshStandardMaterial wireframe color="#e8c195" />
-          </mesh>
-        );
-      })}
+      {list.map((obj) => (
+        <DraggableMesh
+          key={obj.id}
+          objectData={obj}
+          isSelectedExternal={selectedObjectId === obj.id}
+          onSelectExternal={() => setSelectedObjectId(obj.id)}
+          onDeselectExternal={() => setSelectedObjectId(null)}
+          onUpdatePosition={onUpdatePosition}
+          onUpdateType={onUpdateType}
+          onUpdateScale={onUpdateScale}
+          onUpdateColor={onUpdateColor}
+          onUpdateWireframe={onUpdateWireframe}
+          onDelete={onDelete}
+        />
+      ))}
     </>
   );
 }
 
-export default function AnimatedShapes({ isAuthenticated, spawnedObjects }: AnimatedShapesProps) {
+export default function AnimatedShapes({ 
+  isAuthenticated, 
+  spawnedObjects, 
+  selectedObjectId,
+  setSelectedObjectId,
+  onUpdatePosition,
+  onUpdateType,
+  onUpdateScale,
+  onUpdateColor,
+  onUpdateWireframe,
+  onDelete
+}: AnimatedShapesProps) {
   return (
     <div className="w-full h-full relative cursor-grab active:cursor-grabbing">
-      <Canvas camera={{ position: [0, 0, 7], fov: 50 }}>
+      <Canvas 
+        camera={{ position: [0, 0, 7], fov: 50 }}
+        onPointerMissed={() => setSelectedObjectId(null)}
+      >
         <ambientLight intensity={1.5} />
         <directionalLight position={[3, 5, 2]} intensity={2.5} />
         <pointLight position={[-4, -3, -2]} intensity={1.5} />
@@ -112,7 +147,17 @@ export default function AnimatedShapes({ isAuthenticated, spawnedObjects }: Anim
 
         {isAuthenticated && (
           <>
-            <WorkspaceObjects list={spawnedObjects} />
+            <WorkspaceObjects 
+              list={spawnedObjects} 
+              selectedObjectId={selectedObjectId}
+              setSelectedObjectId={setSelectedObjectId}
+              onUpdatePosition={onUpdatePosition} 
+              onUpdateType={onUpdateType}
+              onUpdateScale={onUpdateScale}
+              onUpdateColor={onUpdateColor}
+              onUpdateWireframe={onUpdateWireframe}
+              onDelete={onDelete}
+            />
             <Grid
               position={[0, -2.5, 0]}
               args={[10, 10]}
