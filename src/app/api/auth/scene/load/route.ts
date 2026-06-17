@@ -20,7 +20,7 @@ export async function GET(req: Request) {
         const scene = await db.collection('scenes').findOne({ username });
 
         return NextResponse.json(scene || { objects: [] }, { status: 200 });
-    } catch (error) {
+    } catch {
         return NextResponse.json({ message: 'Failed to load layout' }, { status: 500 });
     }
 }
