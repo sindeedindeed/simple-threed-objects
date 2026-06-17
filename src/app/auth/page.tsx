@@ -9,6 +9,8 @@ interface SpawnedObject {
     type: 'cube' | 'sphere' | 'custom';
     position: [number, number, number];
     scale?: number;
+    color?: string;
+    wireframe?: boolean;
 }
 
 
@@ -91,7 +93,10 @@ export default function AuthPage() {
             const newObject: SpawnedObject = {
                 id: `obj-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`,
                 type: selectedType,
-                position: [randomX, randomY, randomZ]
+                position: [randomX, randomY, randomZ],
+                scale: 1,
+                color: '#D9A066',
+                wireframe: true
             };
 
             setObjects([...objects, newObject]);
@@ -250,6 +255,12 @@ export default function AuthPage() {
                         }}
                         onUpdateScale={(id, newScale) => {
                             setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, scale: newScale } : obj));
+                        }}
+                        onUpdateColor={(id, newColor) => {
+                            setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, color: newColor } : obj));
+                        }}
+                        onUpdateWireframe={(id, isWireframe) => {
+                            setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, wireframe: isWireframe } : obj));
                         }}
                         onDelete={(id) => {
                             setObjects(prev => prev.filter(obj => obj.id !== id));

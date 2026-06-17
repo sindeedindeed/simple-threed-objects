@@ -11,6 +11,8 @@ interface SpawnedObject {
   type: 'cube' | 'sphere' | 'custom';
   position: [number, number, number];
   scale?: number;
+  color?: string;
+  wireframe?: boolean;
 }
 
 interface AnimatedShapesProps {
@@ -19,6 +21,8 @@ interface AnimatedShapesProps {
   onUpdatePosition: (id: string, newPos: [number, number, number]) => void;
   onUpdateType: (id: string, newType: 'cube' | 'sphere' | 'custom') => void;
   onUpdateScale: (id: string, newScale: number) => void;
+  onUpdateColor: (id: string, newColor: string) => void;
+  onUpdateWireframe: (id: string, isWireframe: boolean) => void;
   onDelete: (id: string) => void;
 }
 
@@ -78,12 +82,16 @@ function WorkspaceObjects({
   onUpdatePosition,
   onUpdateType,
   onUpdateScale,
+  onUpdateColor,
+  onUpdateWireframe,
   onDelete
 }: { 
   list: SpawnedObject[]; 
   onUpdatePosition: (id: string, newPos: [number, number, number]) => void; 
   onUpdateType: (id: string, newType: 'cube' | 'sphere' | 'custom') => void;
   onUpdateScale: (id: string, newScale: number) => void;
+  onUpdateColor: (id: string, newColor: string) => void;
+  onUpdateWireframe: (id: string, isWireframe: boolean) => void;
   onDelete: (id: string) => void;
 }) {
   return (
@@ -95,6 +103,8 @@ function WorkspaceObjects({
           onUpdatePosition={onUpdatePosition}
           onUpdateType={onUpdateType}
           onUpdateScale={onUpdateScale}
+          onUpdateColor={onUpdateColor}
+          onUpdateWireframe={onUpdateWireframe}
           onDelete={onDelete}
         />
       ))}
@@ -108,6 +118,8 @@ export default function AnimatedShapes({
   onUpdatePosition,
   onUpdateType,
   onUpdateScale,
+  onUpdateColor,
+  onUpdateWireframe,
   onDelete
 }: AnimatedShapesProps) {
   return (
@@ -126,6 +138,8 @@ export default function AnimatedShapes({
               onUpdatePosition={onUpdatePosition} 
               onUpdateType={onUpdateType}
               onUpdateScale={onUpdateScale}
+              onUpdateColor={onUpdateColor}
+              onUpdateWireframe={onUpdateWireframe}
               onDelete={onDelete}
             />
             <Grid
