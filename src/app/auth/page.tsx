@@ -55,6 +55,8 @@ export default function AuthPage() {
                     if (isLogin) {
                         setLoading('Success! Redirecting...');
                         setTimeout(() => {
+                            // change url to /dashboard
+                            window.history.pushState({ view: 'dashboard' }, '', '/dashboard');
                             setIsAuthenticated(true);
                             setLoading('');
                         }, 800);
@@ -71,6 +73,8 @@ export default function AuthPage() {
         }
 
         const handleSignOut = () => {
+            // change url back to /auth
+            window.history.pushState({ view: 'auth' }, '', '/auth');
             setIsAuthenticated(false);
             setUsername('');
             setPassword('');
