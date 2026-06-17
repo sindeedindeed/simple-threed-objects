@@ -22,6 +22,7 @@ export default function AuthPage() {
     const [loading, setLoading] = useState('');
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [objects, setObjects] = useState<SpawnedObject[]>([]);
+    const [selectedObjectId, setSelectedObjectId] = useState<string | null>(null);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedType, setSelectedType] = useState<'cube' | 'sphere' | 'custom'>('cube');
 
@@ -212,7 +213,8 @@ export default function AuthPage() {
 
                 <SidebarManager 
                         objects={objects}
-                        setObjects={setObjects}
+                        selectedObjectId={selectedObjectId}
+                        setSelectedObjectId={setSelectedObjectId}
                         onAddClick={() => setIsModalOpen(true)}
                     />
                 )}
@@ -247,6 +249,8 @@ export default function AuthPage() {
                         key={isAuthenticated ? 'dashboard-view' : 'login-view'}
                         isAuthenticated={isAuthenticated} 
                         spawnedObjects={objects} 
+                        selectedObjectId={selectedObjectId}
+                        setSelectedObjectId={setSelectedObjectId}
                         onUpdatePosition={(id, newPos) => {
                             setObjects(prev => prev.map(obj => obj.id === id ? { ...obj, position: newPos } : obj));
                         }}
@@ -264,6 +268,7 @@ export default function AuthPage() {
                         }}
                         onDelete={(id) => {
                             setObjects(prev => prev.filter(obj => obj.id !== id));
+                            if (selectedObjectId === id) setSelectedObjectId(null);
                         }}
                     />
                 </div>

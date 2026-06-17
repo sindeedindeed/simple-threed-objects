@@ -5,15 +5,23 @@ interface SpawnedObject {
     type: 'cube' | 'sphere' | 'custom';
     position: [number, number, number];
     scale?: number;
+    color?: string;
+    wireframe?: boolean;
 }
 
 interface SidebarManagerProps {
     objects: SpawnedObject[];
-    setObjects: React.Dispatch<React.SetStateAction<SpawnedObject[]>>;
+    selectedObjectId: string | null;
+    setSelectedObjectId: React.Dispatch<React.SetStateAction<string | null>>;
     onAddClick: () => void;
 }
 
-export default function SidebarManager({ objects, onAddClick }: SidebarManagerProps) {
+export default function SidebarManager({ 
+    objects, 
+    selectedObjectId, 
+    setSelectedObjectId, 
+    onAddClick 
+}: SidebarManagerProps) {
     return (
         <div className='flex flex-col items-center w-full h-full justify-between relative'>
             <div className='flex flex-col items-center w-full space-y-4 border-b border-[#e8c195]/20 pb-4'>
@@ -29,17 +37,25 @@ export default function SidebarManager({ objects, onAddClick }: SidebarManagerPr
             </div>
 
             <div className='flex-1 w-full my-4 overflow-y-auto no-scrollbar space-y-3 px-1 relative'>
-                {objects.map((obj, index) => (
-                    <div key={obj.id} className='relative flex flex-col items-center'>
-                        <div
-                            className="w-12 h-12 rounded-xl border border-stone-200 bg-stone-50 text-stone-500 flex flex-col items-center justify-center text-xs font-bold uppercase tracking-tighter shadow-xs select-none"
-                            title={`Object ${index + 1}`}
-                        >
-                            <span>{obj.type === 'custom' ? 'KNOT' : obj.type}</span>
-                            <span className='text-[9px] opacity-60 font-mono mt-0.5'>#{index + 1}</span>
+                {objects.map((obj, index) => {
+                    const isSelected = selectedObjectId === obj.id;
+                    
+                    return (
+                        <div key={obj.id} className='relative flex flex-col items-center'>
+                            <button
+                                onClick={() => setSelectedObjectId(isSelected ? null : obj.id)}
+                                className={`w-12 h-12 rounded-xl border flex flex-col items-center justify-center text-xs font-bold uppercase tracking-tighter shadow-xs select-none transition-all
+                                    ${isSelected 
+                                        ? 'border-[#D9A066] bg-[#D9A066]/10 text-[#4A3319] ring-2 ring-[#D9A066]/30 font-extrabold scale-105' 
+                                        : 'border-stone-200 bg-stone-50 text-stone-500 hover:border-stone-300 hover:bg-stone-100'}`}
+                                title={`Select Object ${index + 1}`}
+                            >
+                                <span>{obj.type === 'custom' ? 'KNOT' : obj.type}</span>
+                                <span className='text-[9px] opacity-60 font-mono mt-0.5'>#{index + 1}</span>
+                            </button>
                         </div>
-                    </div>
-                ))}
+                    );
+                })}
             </div>
 
             <div className='w-full border-t border-[#e8c195]/20 pt-4 flex flex-col items-center'>

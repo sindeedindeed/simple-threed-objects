@@ -18,6 +18,8 @@ interface SpawnedObject {
 interface AnimatedShapesProps {
   isAuthenticated: boolean;
   spawnedObjects: SpawnedObject[];
+  selectedObjectId: string | null;
+  setSelectedObjectId: React.Dispatch<React.SetStateAction<string | null>>;
   onUpdatePosition: (id: string, newPos: [number, number, number]) => void;
   onUpdateType: (id: string, newType: 'cube' | 'sphere' | 'custom') => void;
   onUpdateScale: (id: string, newScale: number) => void;
@@ -79,6 +81,8 @@ function BackgroundShowcase() {
 
 function WorkspaceObjects({ 
   list, 
+  selectedObjectId,
+  setSelectedObjectId,
   onUpdatePosition,
   onUpdateType,
   onUpdateScale,
@@ -87,6 +91,8 @@ function WorkspaceObjects({
   onDelete
 }: { 
   list: SpawnedObject[]; 
+  selectedObjectId: string | null;
+  setSelectedObjectId: React.Dispatch<React.SetStateAction<string | null>>;
   onUpdatePosition: (id: string, newPos: [number, number, number]) => void; 
   onUpdateType: (id: string, newType: 'cube' | 'sphere' | 'custom') => void;
   onUpdateScale: (id: string, newScale: number) => void;
@@ -100,6 +106,9 @@ function WorkspaceObjects({
         <DraggableMesh
           key={obj.id}
           objectData={obj}
+          isSelectedExternal={selectedObjectId === obj.id}
+          onSelectExternal={() => setSelectedObjectId(obj.id)}
+          onDeselectExternal={() => setSelectedObjectId(null)}
           onUpdatePosition={onUpdatePosition}
           onUpdateType={onUpdateType}
           onUpdateScale={onUpdateScale}
@@ -115,6 +124,8 @@ function WorkspaceObjects({
 export default function AnimatedShapes({ 
   isAuthenticated, 
   spawnedObjects, 
+  selectedObjectId,
+  setSelectedObjectId,
   onUpdatePosition,
   onUpdateType,
   onUpdateScale,
@@ -124,7 +135,10 @@ export default function AnimatedShapes({
 }: AnimatedShapesProps) {
   return (
     <div className="w-full h-full relative cursor-grab active:cursor-grabbing">
-      <Canvas camera={{ position: [0, 0, 7], fov: 50 }}>
+      <Canvas 
+        camera={{ position: [0, 0, 7], fov: 50 }}
+        onPointerMissed={() => setSelectedObjectId(null)}
+      >
         <ambientLight intensity={1.5} />
         <directionalLight position={[3, 5, 2]} intensity={2.5} />
         <pointLight position={[-4, -3, -2]} intensity={1.5} />
@@ -135,6 +149,8 @@ export default function AnimatedShapes({
           <>
             <WorkspaceObjects 
               list={spawnedObjects} 
+              selectedObjectId={selectedObjectId}
+              setSelectedObjectId={setSelectedObjectId}
               onUpdatePosition={onUpdatePosition} 
               onUpdateType={onUpdateType}
               onUpdateScale={onUpdateScale}

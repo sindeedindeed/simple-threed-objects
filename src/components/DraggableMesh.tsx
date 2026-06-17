@@ -16,6 +16,9 @@ interface SpawnedObject {
 
 interface DraggableMeshProps {
     objectData: SpawnedObject;
+    isSelectedExternal: boolean;
+    onSelectExternal: () => void;
+    onDeselectExternal: () => void;
     onUpdatePosition: (id: string, newPos: [number, number, number]) => void;
     onUpdateType: (id: string, newType: 'cube' | 'sphere' | 'custom') => void;
     onUpdateScale: (id: string, newScale: number) => void;
@@ -26,6 +29,9 @@ interface DraggableMeshProps {
 
 export default function DraggableMesh({ 
     objectData, 
+    isSelectedExternal,
+    onSelectExternal,
+    onDeselectExternal,
     onUpdatePosition, 
     onUpdateType, 
     onUpdateScale,
@@ -36,7 +42,6 @@ export default function DraggableMesh({
     const meshRef = useRef<THREE.Mesh>(null);
     const [isDragging, setIsDragging] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
-    const [showMenu, setShowMenu] = useState(false);
     const { size, camera } = useThree();
 
     const planeIntersection = new THREE.Vector3();
@@ -49,7 +54,7 @@ export default function DraggableMesh({
             targetEl.setPointerCapture(e.pointerId);
         }
         setIsDragging(true);
-        setShowMenu(true);
+        onSelectExternal();
     };
 
     const handlePointerMove = (e: ThreeEvent<PointerEvent>) => {
@@ -82,6 +87,7 @@ export default function DraggableMesh({
     const objectScale = objectData.scale ?? 1;
     const objectColor = objectData.color ?? '#D9A066';
     const isWireframe = objectData.wireframe ?? true;
+    const showMenu = isSelectedExternal;
 
     return (
         <group position={objectData.position}>
@@ -108,7 +114,7 @@ export default function DraggableMesh({
 
                 <meshStandardMaterial
                     wireframe={isWireframe}
-                    color={isHovered || isDragging ? '#ffffff' : objectColor}
+                    color={isHovered || isDragging || showMenu ? '#ffffff' : objectColor}
                     roughness={0.4}
                     metalness={0.1}
                 />
@@ -123,7 +129,7 @@ export default function DraggableMesh({
                 >
                     <div 
                         className="bg-white rounded-2xl shadow-2xl border border-stone-200/80 p-4 flex flex-col w-52 text-left relative transition-all duration-300 ease-out translate-y-0 opacity-100 scale-100 origin-bottom animate-[slideUp_0.2s_ease-out]"
-                        onMouseLeave={() => setShowMenu(false)}
+                        onMouseLeave={() => onDeselectExternal()}
                         onPointerDown={(e) => e.stopPropagation()}
                     >
                         <div className="absolute bottom-0 left-1/2 -translate-x-1/2 translate-y-1.5 rotate-45 w-3 h-3 bg-white border-r border-b border-stone-200/80 z-10" />
