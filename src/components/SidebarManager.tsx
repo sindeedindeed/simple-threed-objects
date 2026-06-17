@@ -14,13 +14,15 @@ interface SidebarManagerProps {
     selectedObjectId: string | null;
     setSelectedObjectId: React.Dispatch<React.SetStateAction<string | null>>;
     onAddClick: () => void;
+    onSaveClick: () => void;
 }
 
 export default function SidebarManager({ 
     objects, 
     selectedObjectId, 
     setSelectedObjectId, 
-    onAddClick 
+    onAddClick,
+    onSaveClick
 }: SidebarManagerProps) {
     return (
         <div className='flex flex-col items-center w-full h-full justify-between relative'>
@@ -43,7 +45,10 @@ export default function SidebarManager({
                     return (
                         <div key={obj.id} className='relative flex flex-col items-center'>
                             <button
-                                onClick={() => setSelectedObjectId(isSelected ? null : obj.id)}
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    setSelectedObjectId(isSelected ? null : obj.id);
+                                }}
                                 className={`w-12 h-12 rounded-xl border flex flex-col items-center justify-center text-xs font-bold uppercase tracking-tighter shadow-xs select-none transition-all
                                     ${isSelected 
                                         ? 'border-[#D9A066] bg-[#D9A066]/10 text-[#4A3319] ring-2 ring-[#D9A066]/30 font-extrabold scale-105' 
@@ -60,7 +65,10 @@ export default function SidebarManager({
 
             <div className='w-full border-t border-[#e8c195]/20 pt-4 flex flex-col items-center'>
                 <button
-                    onClick={() => {}}
+                    onClick={(e) => {
+                        e.stopPropagation();
+                        onSaveClick();
+                    }}
                     className='w-12 h-12 rounded-xl bg-[#7A6B58] hover:bg-[#635645] text-white flex items-center justify-center transition-all shadow-sm active:scale-95'
                     title='Save Layout'
                 >
